@@ -125,7 +125,7 @@ def get_public_url():
     key = request.form["key"]
     s3_client = get_s3_client()
     bucket_location = s3_client.get_bucket_location(Bucket=S3_BUCKET)
-    url = f"https://s3-{bucket_location["LocationConstraint"]}.amazonaws.com/{S3_BUCKET}/{key}"
+    url = f"https://s3-{bucket_location['LocationConstraint']}.amazonaws.com/{S3_BUCKET}/{key}"
     return url
 
 
