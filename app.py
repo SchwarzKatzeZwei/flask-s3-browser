@@ -12,7 +12,7 @@ from db_access import TinyDBAC
 from filters import (datetimeformat, file_type,
                      get_archive_pass, path_parent)
 from resources import get_bucket, get_s3_client
-from util import dir_file_filter, pass_gen
+from util import dir_file_filter, pass_gen, check_already_insert_db
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -96,9 +96,13 @@ def delete():
     summaries = my_bucket.objects.filter(Prefix=key)
     for summary in summaries:
         my_bucket.Object(summary.key).delete()
+        if check_already_insert_db(summary.key):
+            dbac.remove(summary.key)
 
     # 自分自身を削除
     my_bucket.Object(key).delete()
+    if check_already_insert_db(key):
+        dbac.remove(key)
 
     flash("File deleted successfully", "alert alert-success")
     return redirect(url_for("files", export_path=export_path))

@@ -1,5 +1,6 @@
 import string
 import secrets
+from db_access import TinyDBAC
 
 
 def dir_file_filter(summaries, key: str = "") -> list:
@@ -44,3 +45,21 @@ def pass_gen(size: int = 12) -> str:
     chars += "%&$#()"
 
     return "".join(secrets.choice(chars) for x in range(size))
+
+
+def check_already_insert_db(key: str) -> bool:
+    """DBにkeyがあるかチェック
+
+    Args:
+        key (str): key
+
+    Returns:
+        bool: 正否
+    """
+    dbac = TinyDBAC()
+    if dbac.search(key) != []:
+        del dbac
+        return True
+
+    del dbac
+    return False

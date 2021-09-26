@@ -23,5 +23,9 @@ class TinyDBAC:
         else:
             self.update(key, value)
 
+    def remove(self, key) -> None:
+        query = Query()
+        self.db.remove(query.key == key)
+
     def select_all(self) -> list:
         return self.db.all()
