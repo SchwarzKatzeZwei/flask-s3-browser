@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+{% block title %}S3 Object List{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="col-12-xs">
+    <h3>{{ my_bucket.name }} Bucket Info</h3>
+    <p>Created: {{ my_bucket.creation_date | datetimeformat }}</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <!-- <div class="alert alert-primary" role="alert"> -->
+    {% for category, message in messages %}
+    <div class="{{ category }}" role="alert">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <!-- </div> -->
+    <hr>
+    <!-- ファイルアップロード -->
+    <form class="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+      <input type="file" name="file">
+      <input type="hidden" name="export-path" value="{{ path }}">
+      <button type="submit" class="btn btn-primary btn-sm upload-btn">Upload</button>
+      <input class="checkbox" type="checkbox" name="archive" value="on"
+        onclick="connecttext('textforcb',this.checked);">
+      <label>Archive</label>
+      <label>password</label>
+      <input type="text" name="password-text" id="textforcb" value="{{ gen_passwd }}" disabled>
+    </form>
+    <hr>
+
+    <form class="mkdir-form" action="{{ url_for('mkdir') }}" method="POST">
+      <input type="hidden" name="export-path" value="{{ path }}">
+      <button type="submit" class="btn btn-primary btn-sm upload-btn">mkdir</button>
+      <input type="text" name="new-dir-name" value="" placeholder="e.g.: YYYYMMDD">
+      フォルダ名に「/」は使用できません。
+      <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html" target="_blank"
+        rel="noopener noreferrer">命名規則を参照してください</a>
+    </form>
+
+    <!-- 親ディレクトリに戻る -->
+    <p>
+    <form action="{{ url_for('files') }}" method="POST">
+      <input type="hidden" name="key" value="{{ path | path_parent }}">
+      <button type="submit" class="btn btn-success btn-sm">
+        <i class="fa fa-reply"></i>
+      </button>
+      <text style="padding-left: 10px;"> Path: {{ path }}</text>
+    </form>
+    </p>
+
+    <table class="table table-striped">
+      <tr>
+        <th>Filename</th>
+        <th>Public URL</th>
+        <th>Password</th>
+        <th>Uploaded Date</th>
+        <th>Type</th>
+        <th></th>
+      </tr>
+      {% for f in files %}
+      <tr>
+        <!-- Filename -->
+        <td>
+          {% if f | file_type == "directory" %}
+          <form name="afa" id="bbb" action="{{ url_for('files') }}" method="POST">
+            <input type="hidden" name="key" value="{{ f.key }}">
+            <button type="submit" class="no-style-button">
+              <a>{{ f.key }}</a>
+            </button>
+          </form>
+          {% else %}
+          {{ f.key }}
+          {% endif %}
+        </td>
+        <!-- Public URL Clipboard -->
+        <td>
+          {% if f | file_type == "directory" %}
+          <p>-</p>
+          {% else %}
+          <button type="submit" class="btn btn-default btn-sm" onclick="get_public_url('{{ f.key }}')">
+            <i class="fas fa-clipboard"></i>
+          </button>
+          {% endif %}
+        </td>
+        <!-- Password -->
+        <td>
+          {% if f | file_type == "application/zip" %}
+          <p>{{ f.key | get_archive_pass }}</p>
+          {% else %}
+          <p>-</p>
+          {% endif %}
+        </td>
+        <!-- Uploaded Date -->
+        <td>{{ f.last_modified | datetimeformat }}</td>
+        <!-- File Type -->
+        <td>{{ f | file_type }}</td>
+        <!-- ボタン群 -->
+        <td class="td-buttons">
+          <form class="delete-form" action="{{ url_for('delete') }}" method="POST">
+            <input type="hidden" name="key" value="{{ f.key }}">
+            <input type="hidden" name="export-path" value="{{ path }}">
+            <button type="submit" class="btn btn-danger btn-sm">
+              <i class="fa fa-trash-alt"></i>
+            </button>
+          </form>
+          {% if f | file_type == "directory" %}
+          {% else %}
+          <form class="download-form" action="{{ url_for('download') }}" method="POST">
+            <input type="hidden" name="key" value="{{ f.key }}">
+            <button type="submit" class="btn btn-default btn-sm">
+              <i class="fa fa-download"></i>
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}
