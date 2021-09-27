@@ -5,5 +5,5 @@ Flask-Bootstrap
 python-dotenv
 pyminizip
 flake8
-autoepep8
+autopep8
 tinydb
