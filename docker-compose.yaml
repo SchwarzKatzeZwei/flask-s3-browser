@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  flask-s3-browser:
+    build:
+      context: .
+      dockerfile: Dockerfile 
+    ports:
+      - ${FLASK_RUN_PORT}:${FLASK_RUN_PORT}
+    restart: always
+    volumes:
+      - ./:/app
+    command: flask run
