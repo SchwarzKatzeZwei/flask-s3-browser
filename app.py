@@ -10,9 +10,9 @@ from flask_bootstrap import Bootstrap
 from config import S3_BUCKET, PASSWORD_LENGTH
 from db_access import TinyDBAC
 from filters import (datetimeformat, file_type,
-                     get_archive_pass, path_parent)
+                     get_archive_pass, path_parent, get_expire)
 from resources import get_bucket, get_s3_client
-from util import dir_file_filter, pass_gen, check_already_insert_db
+from util import dir_file_filter, pass_gen, check_already_insert_db, make_tag
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -21,6 +21,7 @@ app.jinja_env.filters["datetimeformat"] = datetimeformat
 app.jinja_env.filters["file_type"] = file_type
 app.jinja_env.filters["path_parent"] = path_parent
 app.jinja_env.filters["get_archive_pass"] = get_archive_pass
+app.jinja_env.filters["expire"] = get_expire
 
 dbac = TinyDBAC()
 
@@ -52,6 +53,10 @@ def files():
 def upload():
     file = request.files["file"]
     export_path = request.form["export-path"]
+    expiration = request.form["expiration"]
+
+    # 有効期限
+    set_tag = make_tag(ExpireTag=expiration)
 
     if file.filename == "":
         flash("No file selected.", "alert alert-danger")
@@ -71,7 +76,7 @@ def upload():
             my_bucket.upload_file(
                 f"{dirpath}/{os.path.splitext(file.filename)[0]}.zip",
                 f"{export_path}{os.path.splitext(file.filename)[0]}.zip",
-                ExtraArgs={"ACL": "public-read"})
+                ExtraArgs={"ACL": "public-read", "Tagging": set_tag})
 
         # パスワードをローカルDBに保存
         dbac.insert(f"{export_path}{os.path.splitext(file.filename)[0]}.zip", password)
@@ -79,7 +84,7 @@ def upload():
     # Not archive
     else:
         # S3にアップロード
-        my_bucket.Object(export_path + file.filename).put(Body=file, ACL="public-read")
+        my_bucket.Object(export_path + file.filename).put(Body=file, ACL="public-read", Tagging=set_tag)
 
     flash("File uploaded successfully.", "alert alert-success")
     return redirect(url_for("files", export_path=export_path))

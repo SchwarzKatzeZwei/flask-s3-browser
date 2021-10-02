@@ -63,3 +63,16 @@ def check_already_insert_db(key: str) -> bool:
 
     del dbac
     return False
+
+
+def make_tag(**kwargs) -> str:
+    """タグ文生成
+
+    Returns:
+        str: タグ文
+    """
+    ret_text = ""
+    for k, v in kwargs.items():
+        ret_text += f"{k}={v}"
+
+    return ret_text

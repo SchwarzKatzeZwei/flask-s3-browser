@@ -27,6 +27,16 @@
       <label>Archive</label>
       <label>password</label>
       <input type="text" name="password-text" id="textforcb" value="{{ gen_passwd }}" disabled>
+      <!-- 有効期限 -->
+      <div class="select-days">
+        <b>Expiration</b>
+        <input type="radio" id="3days" name="expiration" value="3days" class="day3">
+        <label for="3days">3days</label>
+        <input type="radio" id="7days" name="expiration" value="7days" class="day7" checked>
+        <label for="7days">7days</label>
+        <input type="radio" id="never" name="expiration" value="never" class="never">
+        <label for="never">never</label>
+      </div>
     </form>
     <hr>
 
@@ -56,6 +66,7 @@
         <th>Public URL</th>
         <th>Password</th>
         <th>Uploaded Date</th>
+        <th>Expiration Date</th>
         <th>Type</th>
         <th></th>
       </tr>
@@ -94,6 +105,8 @@
         </td>
         <!-- Uploaded Date -->
         <td>{{ f.last_modified | datetimeformat }}</td>
+        <!-- Expiration Date -->
+        <td>{{ f.key | expire}}</td>
         <!-- File Type -->
         <td>{{ f | file_type }}</td>
         <!-- ボタン群 -->
