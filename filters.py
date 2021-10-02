@@ -6,6 +6,7 @@ from pathlib import Path
 import arrow
 
 from db_access import TinyDBAC
+from resources import get_bucket
 
 additional_file_types = {
     ".md": "text/markdown"
@@ -99,3 +100,24 @@ def get_archive_pass(key: str) -> str:
 
     del dbac
     return password
+
+
+def get_expire(key: str) -> str:
+    """有効期限日取得
+
+    Args:
+        key (str): S3 Bucket Object Key
+
+    Returns:
+        str: 変換後時刻文字列
+    """
+    my_bucket = get_bucket()
+    object = my_bucket.Object(key)
+    try:
+        expiration_date = object.expiration.split("\"")[1]
+    except AttributeError:
+        return "never"
+    dt = datetime.datetime.strptime(expiration_date, "%a, %d %b %Y %H:%M:%S %Z")
+    ar = arrow.get(dt)
+    local = ar.to("Asia/Tokyo").format("YYYY/MM/DD HH:mm:ss")
+    return local
