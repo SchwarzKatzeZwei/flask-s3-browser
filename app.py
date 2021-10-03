@@ -3,16 +3,14 @@ import tempfile
 import urllib.parse
 
 import pyminizip
-from flask import (Flask, Response, flash, redirect, render_template, request,
-                   session, url_for)
+from flask import Flask, Response, flash, redirect, render_template, request, session, url_for
 from flask_bootstrap import Bootstrap
 
-from config import S3_BUCKET, PASSWORD_LENGTH
+from config import PASSWORD_LENGTH, S3_BUCKET
 from db_access import TinyDBAC
-from filters import (datetimeformat, file_type,
-                     get_archive_pass, path_parent, get_expire)
+from filters import datetimeformat, file_type, get_archive_pass, get_expire, path_parent
 from resources import get_bucket, get_s3_client
-from util import dir_file_filter, pass_gen, check_already_insert_db, make_tag
+from util import check_already_insert_db, dir_file_filter, make_tag, pass_gen
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -46,7 +44,9 @@ def files():
     summaries = my_bucket.objects.filter(Prefix=key)
     summaries = dir_file_filter(summaries, key=key)
 
-    return render_template("files.html", my_bucket=my_bucket, files=summaries, path=key, gen_passwd=pass_gen(PASSWORD_LENGTH))
+    return render_template(
+        "files.html", my_bucket=my_bucket, files=summaries, path=key, gen_passwd=pass_gen(PASSWORD_LENGTH)
+    )
 
 
 @app.route("/upload", methods=["POST"])
@@ -71,12 +71,15 @@ def upload():
             # アップロードファイルを保存
             file.save(os.path.join(dirpath, file.filename))
             # パスワード付きzip生成
-            pyminizip.compress(dirpath + "/" + file.filename, "", f"{dirpath}/{os.path.splitext(file.filename)[0]}.zip", password, 9)
+            pyminizip.compress(
+                dirpath + "/" + file.filename, "", f"{dirpath}/{os.path.splitext(file.filename)[0]}.zip", password, 9
+            )
             # S3にアップロード
             my_bucket.upload_file(
                 f"{dirpath}/{os.path.splitext(file.filename)[0]}.zip",
                 f"{export_path}{os.path.splitext(file.filename)[0]}.zip",
-                ExtraArgs={"ACL": "public-read", "Tagging": set_tag})
+                ExtraArgs={"ACL": "public-read", "Tagging": set_tag},
+            )
 
         # パスワードをローカルDBに保存
         dbac.insert(f"{export_path}{os.path.splitext(file.filename)[0]}.zip", password)
@@ -125,7 +128,7 @@ def download():
     return Response(
         file_obj["Body"].read(),
         mimetype="text/plain",
-        headers={"Content-Disposition": "attachment;filename={}".format(key)}
+        headers={"Content-Disposition": "attachment;filename={}".format(key)},
     )
 
 
@@ -148,7 +151,7 @@ def mkdir():
         flash("Folder name is empty.", "alert alert-danger")
         return redirect(url_for("files", export_path=export_path))
     elif "/" in new_dir_name:
-        flash("You cannot use \"/\" in the folder name.", "alert alert-danger")
+        flash('You cannot use "/" in the folder name.', "alert alert-danger")
         return redirect(url_for("files", export_path=export_path))
 
     my_bucket = get_bucket()

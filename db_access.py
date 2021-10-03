@@ -1,8 +1,7 @@
-from tinydb import TinyDB, Query
+from tinydb import Query, TinyDB
 
 
 class TinyDBAC:
-
     def __init__(self) -> None:
         self.db = TinyDB("db.json")
 

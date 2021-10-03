@@ -8,9 +8,7 @@ import arrow
 from db_access import TinyDBAC
 from resources import get_bucket
 
-additional_file_types = {
-    ".md": "text/markdown"
-}
+additional_file_types = {".md": "text/markdown"}
 
 
 def datetimeformat(date_str: str) -> str:
@@ -114,7 +112,7 @@ def get_expire(key: str) -> str:
     my_bucket = get_bucket()
     object = my_bucket.Object(key)
     try:
-        expiration_date = object.expiration.split("\"")[1]
+        expiration_date = object.expiration.split('"')[1]
     except AttributeError:
         return "never"
     dt = datetime.datetime.strptime(expiration_date, "%a, %d %b %Y %H:%M:%S %Z")
