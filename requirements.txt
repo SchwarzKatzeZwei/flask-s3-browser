@@ -7,3 +7,4 @@ pyminizip
 flake8
 black
 tinydb
+isort

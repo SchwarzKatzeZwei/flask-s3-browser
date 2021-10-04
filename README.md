@@ -11,6 +11,7 @@ Simple operation of AWS S3 from a web browser
 - Zip archive on upload (with password)
 - Getting the Public URL
 - Display password when uploading archives from (this tool)
+- Expiration by Lifecycle
 
 ## Setup
 
