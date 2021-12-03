@@ -1,8 +1,9 @@
 import os
+import subprocess
 import tempfile
 import urllib.parse
+import zipfile
 
-import pyminizip
 from flask import Flask, Response, flash, redirect, render_template, request, session, url_for
 from flask_bootstrap import Bootstrap
 
@@ -67,19 +68,39 @@ def upload():
     # Archive
     if request.form.get("archive") is not None:
         password = request.form["password-text"]
-        with tempfile.TemporaryDirectory(prefix="tmp_", dir=".") as dirpath:
+        with tempfile.TemporaryDirectory(prefix="tmp_src", dir=".") as dirpath_src:
             # アップロードファイルを保存
-            file.save(os.path.join(dirpath, file.filename))
-            # パスワード付きzip生成
-            pyminizip.compress(
-                dirpath + "/" + file.filename, "", f"{dirpath}/{os.path.splitext(file.filename)[0]}.zip", password, 9
-            )
-            # S3にアップロード
-            my_bucket.upload_file(
-                f"{dirpath}/{os.path.splitext(file.filename)[0]}.zip",
-                f"{export_path}{os.path.splitext(file.filename)[0]}.zip",
-                ExtraArgs={"ACL": "public-read", "Tagging": set_tag},
-            )
+            file.save(os.path.join(dirpath_src, file.filename))
+
+            if zipfile.is_zipfile(f"{dirpath_src}/{file.filename}"):  # zipファイルの場合解凍する
+                with zipfile.ZipFile(f"{dirpath_src}/{file.filename}") as z:
+                    for info in z.infolist():
+                        info.filename = info.orig_filename
+                        if os.sep != "/" and os.sep in info.filename:
+                            info.filename = info.filename.replace(os.sep, "/")
+                        z.extract(info, dirpath_src)
+
+                # zipファイルを削除
+                os.remove(f"{dirpath_src}/{file.filename}")
+
+            with tempfile.TemporaryDirectory(prefix="tmp_dst", dir=".") as dirpath_dst:
+                # パスワード付きzipをシェルスクリプトで生成
+                command = [
+                    "/usr/bin/zip",
+                    "-r",
+                    "-P",
+                    f"{password}",
+                    f"../{dirpath_dst}/{os.path.splitext(file.filename)[0]}.zip",
+                    f"{os.path.splitext(file.filename)[0]}",
+                ]
+                subprocess.run(command, cwd=f"{dirpath_src}")
+
+                # S3にアップロード
+                my_bucket.upload_file(
+                    f"{dirpath_dst}/{os.path.splitext(file.filename)[0]}.zip",
+                    f"{export_path}{os.path.splitext(file.filename)[0]}.zip",
+                    ExtraArgs={"ACL": "public-read", "Tagging": set_tag},
+                )
 
         # パスワードをローカルDBに保存
         dbac.insert(f"{export_path}{os.path.splitext(file.filename)[0]}.zip", password)
