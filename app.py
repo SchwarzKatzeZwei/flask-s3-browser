@@ -72,17 +72,6 @@ def upload():
             # アップロードファイルを保存
             file.save(os.path.join(dirpath_src, file.filename))
 
-            if zipfile.is_zipfile(f"{dirpath_src}/{file.filename}"):  # zipファイルの場合解凍する
-                with zipfile.ZipFile(f"{dirpath_src}/{file.filename}") as z:
-                    for info in z.infolist():
-                        info.filename = info.orig_filename
-                        if os.sep != "/" and os.sep in info.filename:
-                            info.filename = info.filename.replace(os.sep, "/")
-                        z.extract(info, dirpath_src)
-
-                # zipファイルを削除
-                os.remove(f"{dirpath_src}/{file.filename}")
-
             with tempfile.TemporaryDirectory(prefix="tmp_dst", dir=".") as dirpath_dst:
                 # パスワード付きzipをシェルスクリプトで生成
                 command = [
@@ -90,20 +79,20 @@ def upload():
                     "-r",
                     "-P",
                     f"{password}",
-                    f"../{dirpath_dst}/{os.path.splitext(file.filename)[0]}.zip",
-                    f"{os.path.splitext(file.filename)[0]}",
+                    f"../{dirpath_dst}/pass_{file.filename}",
+                    f"{file.filename}",
                 ]
                 subprocess.run(command, cwd=f"{dirpath_src}")
 
                 # S3にアップロード
                 my_bucket.upload_file(
-                    f"{dirpath_dst}/{os.path.splitext(file.filename)[0]}.zip",
-                    f"{export_path}{os.path.splitext(file.filename)[0]}.zip",
+                    f"{dirpath_dst}/pass_{os.path.splitext(file.filename)[0]}.zip",
+                    f"{export_path}pass_{os.path.splitext(file.filename)[0]}.zip",
                     ExtraArgs={"ACL": "public-read", "Tagging": set_tag},
                 )
 
         # パスワードをローカルDBに保存
-        dbac.insert(f"{export_path}{os.path.splitext(file.filename)[0]}.zip", password)
+        dbac.insert(f"{export_path}pass_{os.path.splitext(file.filename)[0]}.zip", password)
 
     # Not archive
     else:
