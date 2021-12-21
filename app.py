@@ -79,7 +79,7 @@ def upload():
                     "-r",
                     "-P",
                     f"{password}",
-                    f"../{dirpath_dst}/pass_{file.filename}",
+                    f"../{dirpath_dst}/pass_{os.path.splitext(file.filename)[0]}.zip",
                     f"{file.filename}",
                 ]
                 subprocess.run(command, cwd=f"{dirpath_src}")
