@@ -45,9 +45,7 @@ def files():
     summaries = my_bucket.objects.filter(Prefix=key)
     summaries = dir_file_filter(summaries, key=key)
 
-    return render_template(
-        "files.html", my_bucket=my_bucket, files=summaries, path=key, gen_passwd=pass_gen(PASSWORD_LENGTH)
-    )
+    return render_template("files.html", my_bucket=my_bucket, files=summaries, path=key, gen_passwd=pass_gen(PASSWORD_LENGTH))
 
 
 @app.route("/upload", methods=["POST"])
@@ -55,6 +53,7 @@ def upload():
     file = request.files["file"]
     export_path = request.form["export-path"]
     expiration = request.form["expiration"]
+    encode_type = request.form["encode"]
 
     # 有効期限
     set_tag = make_tag(ExpireTag=expiration)
@@ -73,16 +72,23 @@ def upload():
             file.save(os.path.join(dirpath_src, file.filename))
 
             with tempfile.TemporaryDirectory(prefix="tmp_dst", dir=".") as dirpath_dst:
+                if encode_type == "CP932":
+                    # CP932変換
+                    command = ["/usr/bin/convmv", "-r", "-f", "utf8", "-t", "cp932", f"{dirpath_src}/{file.filename}", "--notest"]
+                    subprocess.run(command)
+
                 # パスワード付きzipをシェルスクリプトで生成
                 command = [
                     "/usr/bin/zip",
                     "-r",
                     "-P",
-                    f"{password}",
+                    f"\'{password}\'",
                     f"../{dirpath_dst}/pass_{os.path.splitext(file.filename)[0]}.zip",
-                    f"{file.filename}",
+                    "./*",
                 ]
-                subprocess.run(command, cwd=f"{dirpath_src}")
+                command = " ".join(command)
+                print(command)
+                subprocess.run(command, cwd=f"{dirpath_src}", shell=True)
 
                 # S3にアップロード
                 my_bucket.upload_file(
