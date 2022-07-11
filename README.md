@@ -12,6 +12,7 @@ Simple operation of AWS S3 from a web browser
 - Getting the Public URL
 - Display password when uploading archives from (this tool)
 - Expiration by Lifecycle
+- Select Encoding (UTF-8, Shift_JIS(CP932))
 
 ## Setup
 

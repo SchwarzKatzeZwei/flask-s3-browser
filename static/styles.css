@@ -93,6 +93,14 @@ input[type="checkbox"] {
     cursor: pointer;
 }
 
+.encode-type {
+  display: inline-block;
+}
+
+.encode-type label{
+  display: inline-block;
+}
+
 /* Bootstrap上書き */
 .alert {
   margin-bottom: 0px;
