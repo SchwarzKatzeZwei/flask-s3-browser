@@ -1,7 +1,6 @@
 import boto3
 from boto3.resources.base import ServiceResource
 from botocore.client import BaseClient
-from flask import session
 
 from config import S3_BUCKET, S3_KEY, S3_SECRET
 
@@ -39,10 +38,7 @@ def get_bucket() -> boto3.resources.base.ServiceResource:
         2. 設定ファイルのS3_BUCKET
     """
     s3_resource = _get_s3_resource()
-    if "bucket" in session:
-        bucket = session["bucket"]
-    else:
-        bucket = S3_BUCKET
+    bucket = S3_BUCKET
 
     return s3_resource.Bucket(bucket)
 

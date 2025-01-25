@@ -1,17 +1,21 @@
+import asyncio
 import os
 import subprocess
 import tempfile
 import urllib.parse
 
+from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_bootstrap import Bootstrap
 from werkzeug.wrappers import Response
 
 from config import PASSWORD_LENGTH, S3_BUCKET
 from db_access import TinyDBAC
-from filters import datetimeformat, file_type, get_archive_pass, get_expire, path_parent
+from filters import datetimeformat, file_type, get_archive_pass, get_expires_async, path_parent
 from resources import get_bucket, get_s3_client
 from util import check_already_insert_db, dir_file_filter, make_tag, pass_gen
+
+load_dotenv(verbose=True)
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -20,14 +24,11 @@ app.jinja_env.filters["datetimeformat"] = datetimeformat
 app.jinja_env.filters["file_type"] = file_type
 app.jinja_env.filters["path_parent"] = path_parent
 app.jinja_env.filters["get_archive_pass"] = get_archive_pass
-app.jinja_env.filters["expire"] = get_expire
-
 dbac = TinyDBAC()
 
 
 @app.route("/", methods=["GET", "POST"])
 def index() -> Response:
-    session["bucket"] = S3_BUCKET
     return redirect(url_for("files"))
 
 
@@ -44,8 +45,14 @@ def files() -> str:
 
     summaries = my_bucket.objects.filter(Prefix=key)
     summaries = dir_file_filter(summaries, key=key)
+    keys = [summary.key if not isinstance(summary, dict) else summary["key"] for summary in summaries]
+    expires = asyncio.run(get_expires_async(keys))
+    # Convert dictionary values to a list for zip operation
+    expire_values = list(expires.values())
 
-    return render_template("files.html", my_bucket=my_bucket, files=summaries, path=key, gen_passwd=pass_gen(PASSWORD_LENGTH))
+    return render_template(
+        "files.html", my_bucket=my_bucket, files=zip(summaries, expire_values), path=key, gen_passwd=pass_gen(PASSWORD_LENGTH)
+    )
 
 
 @app.route("/upload", methods=["POST"])
@@ -86,9 +93,8 @@ def upload() -> Response:
                     f"../{dirpath_dst}/pass_{os.path.splitext(file.filename)[0]}.zip",
                     "./*",
                 ]
-                command = " ".join(command)
-                print(command)
-                subprocess.run(command, cwd=f"{dirpath_src}", shell=True)
+                command_str = " ".join(command)
+                subprocess.run(command_str, cwd=f"{dirpath_src}", shell=True)
 
                 # S3にアップロード
                 my_bucket.upload_file(

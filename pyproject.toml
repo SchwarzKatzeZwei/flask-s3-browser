@@ -5,7 +5,7 @@ description = "flask-s3-browser"
 authors = ["COMSYS JOHO SYSTEM Corporation."]
 license = "Copyright © COMSYS JOHO SYSTEM Corporation. All rights reserved."
 readme = "README.md"
-packages = [{ include = "flask-s3-browser" }]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.13"

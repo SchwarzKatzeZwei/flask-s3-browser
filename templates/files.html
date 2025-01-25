@@ -75,7 +75,7 @@
         <th>Type</th>
         <th></th>
       </tr>
-      {% for f in files %}
+      {% for f, ex in files %}
       <tr>
         <!-- Filename -->
         <td>
@@ -111,7 +111,7 @@
         <!-- Uploaded Date -->
         <td>{{ f.last_modified | datetimeformat }}</td>
         <!-- Expiration Date -->
-        <td>{{ f.key | expire}}</td>
+        <td>{{ ex }}</td>
         <!-- File Type -->
         <td>{{ f | file_type }}</td>
         <!-- ボタン群 -->

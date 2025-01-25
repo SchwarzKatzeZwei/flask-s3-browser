@@ -1,7 +1,11 @@
+import asyncio
+import concurrent.futures
 import datetime
 import mimetypes
 import os
+from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 import arrow
 
@@ -28,11 +32,11 @@ def datetimeformat(date_str: str) -> str:
     return local
 
 
-def file_type(summary) -> str:
+def file_type(summary: Any) -> str:
     """MIMEタイプ取得
 
     Args:
-        summary (boto3.resources.factory.s3.ObjectSummary): S3 Bucket Object
+        summary (Any): S3 Bucket Object
 
     Returns:
         str: MIMEタイプ
@@ -100,22 +104,36 @@ def get_archive_pass(key: str) -> str:
     return password
 
 
+@lru_cache(maxsize=10000)
 def get_expire(key: str) -> str:
     """有効期限日取得
 
     Args:
         key (str): S3 Bucket Object Key
 
+
     Returns:
         str: 変換後時刻文字列
     """
-    my_bucket = get_bucket()
-    object = my_bucket.Object(key)
-    try:
-        expiration_date = object.expiration.split('"')[1]
-    except AttributeError:
+    if key.endswith("/"):
         return "never"
-    dt = datetime.datetime.strptime(expiration_date, "%a, %d %b %Y %H:%M:%S %Z")
-    ar = arrow.get(dt)
-    local = ar.to("Asia/Tokyo").format("YYYY/MM/DD HH:mm:ss")
-    return local
+    else:
+        my_bucket = get_bucket()
+        object = my_bucket.Object(key)
+        try:
+            expiration_date = object.expiration.split('"')[1]
+        except AttributeError:
+            return "never"
+        dt = datetime.datetime.strptime(expiration_date, "%a, %d %b %Y %H:%M:%S %Z")
+        ar = arrow.get(dt)
+        local = ar.to("Asia/Tokyo").format("YYYY/MM/DD HH:mm:ss")
+        return local
+
+
+async def get_expires_async(keys: list[str]) -> dict[str, str]:
+    """複数キーの有効期限を非同期で取得"""
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        tasks = [loop.run_in_executor(pool, get_expire, key) for key in keys]
+        results = await asyncio.gather(*tasks)
+        return dict(zip(keys, results))

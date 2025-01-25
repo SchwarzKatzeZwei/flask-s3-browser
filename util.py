@@ -1,5 +1,6 @@
 import secrets
 import string
+from typing import Any
 
 import boto3
 
@@ -82,11 +83,11 @@ def check_already_insert_db(key: str) -> bool:
     return False
 
 
-def make_tag(**kwargs: dict) -> str:
+def make_tag(**kwargs: Any) -> str:
     """キーワード引数からタグ文字列を生成する
 
     Args:
-        **kwargs (dict): キーと値のペアを含む任意のキーワード引数
+        **kwargs (Any): キーと値のペアを含む任意のキーワード引数
 
     Returns:
         str: "key1=value1key2=value2..." 形式の文字列
