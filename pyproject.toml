@@ -1,6 +1,81 @@
-[tool.black]
-line-length = 119
+[tool.poetry]
+name = "flask-s3-browser"
+version = "2.0.0"
+description = "flask-s3-browser"
+authors = ["COMSYS JOHO SYSTEM Corporation."]
+license = "Copyright © COMSYS JOHO SYSTEM Corporation. All rights reserved."
+readme = "README.md"
+packages = [{ include = "flask-s3-browser" }]
 
-[tool.isort]
-profile = "black"
-line_length = 119
+[tool.poetry.dependencies]
+python = ">=3.8,<3.13"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.9.3"
+mypy = "^1.14.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+# Assume Python
+target-version = "py310"
+
+# 指定したルールをチェックの対象とする
+select = [
+    "F",   # https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "E",   # https://docs.astral.sh/ruff/rules/#error-e
+    "W",   # https://docs.astral.sh/ruff/rules/#warning-w
+    "C90", # https://docs.astral.sh/ruff/rules/#mccabe-c90
+    "I",   # https://docs.astral.sh/ruff/rules/#isort-i
+]
+# 指定したルールをチェックの対象としない
+ignore = []
+
+# 指定したルールを修正の対象とする
+fixable = [
+    "F",   # https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "E",   # https://docs.astral.sh/ruff/rules/#error-e
+    "W",   # https://docs.astral.sh/ruff/rules/#warning-w
+    "C90", # https://docs.astral.sh/ruff/rules/#mccabe-c90
+    "I",   # https://docs.astral.sh/ruff/rules/#isort-i
+]
+# 指定したルールを修正の対象としない
+unfixable = ["F401"]
+
+# ファイルやディレクトリを除外する
+exclude = []
+# 1行の最大文字数を変更する（デフォルトは88）
+line-length = 140
+# ファイル内の未使用のインポートを自動的に削除しないようにします
+ignore-init-module-imports = true
+
+[tool.mypy]
+# エラー時のメッセージを詳細表示
+show_error_context = true
+# エラー発生箇所の行数/列数を表示
+show_column_numbers = true
+# import 先のチェックを行わない (デフォルトだとサードパーティーライブラリーまでチェックする)
+ignore_missing_imports = true
+# 関数定義の引数/戻り値に型アノテーション必須
+disallow_untyped_defs = true
+# デフォルト引数に None を取る場合型アノテーションに Optional 必須
+no_implicit_optional = true
+# 戻り値が Any 型ではない関数の戻り値の型アノテーションが Any のとき警告
+warn_return_any = true
+# mypy エラーに該当しない箇所に `# type: ignore` コメントが付与されていたら警告
+# ※ `# type: ignore` が付与されている箇所は mypy のエラーを無視出来る
+warn_unused_ignores = true
+# 冗長なキャストに警告
+warn_redundant_casts = true
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+addopts = "-v --cov-config=pyproject.toml --cov . --cov-branch --cov-report=term --cov-report xml:cov.xml --html=pytest_report.html --self-contained-html --junitxml=./pytest_report.xml --css=tests/myreport.css --color=yes"
+pythonpath = ["."]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["."]

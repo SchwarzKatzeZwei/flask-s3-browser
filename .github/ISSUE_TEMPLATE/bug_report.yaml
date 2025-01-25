@@ -1,0 +1,59 @@
+name: Bug report
+description: 不具合報告
+title: "[Bug]: "
+labels: ["Type: Bug Fix"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 概要
+      description: 発生したバグについて記載する。
+      placeholder: 発生したバグについて記載する。
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 再現手順
+      description: バグの再現方法
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 期待した動作
+      description: その機能がするべきはずの動作
+      placeholder: その機能がするべきはずの動作
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: 使用したブラウザ
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: 関連するログの出力をコピーしてペーストしてください。 これは自動的にコードにshellフォーマットにされるので、バックティックは不要です。
+      render: shell
+
+  - type: textarea
+    id: other
+    attributes:
+      label: その他

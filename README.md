@@ -16,13 +16,15 @@ Simple operation of AWS S3 from a web browser
 
 ## Setup
 
-Flask S3 Browser supports Python >= 3.9.x
+Flask S3 Browser supports 3.10.x <= Python <> 3.13.x
 
 - Install Dependencies
 
 ```sh
-pip install -r requirements.txt  # pip
-conda env create -f M1Mac_miniconda_env.yaml  # Apple M1 Mac miniconda
+poetry config --local virtualenvs.in-project true
+poetry install
+poetry shell
+pip install -r requirements.txt
 ```
 
 - Configuration
