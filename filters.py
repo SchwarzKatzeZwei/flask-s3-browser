@@ -92,7 +92,7 @@ def get_archive_pass(key: str) -> str:
     """
     dbac = TinyDBAC()
     if (record := dbac.search(key)) != []:
-        password = record[0]["value"]
+        password: str = record[0]["value"]
     else:
         password = "unknown"
 

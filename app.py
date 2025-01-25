@@ -2,10 +2,10 @@ import os
 import subprocess
 import tempfile
 import urllib.parse
-import zipfile
 
-from flask import Flask, Response, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_bootstrap import Bootstrap
+from werkzeug.wrappers import Response
 
 from config import PASSWORD_LENGTH, S3_BUCKET
 from db_access import TinyDBAC
@@ -26,13 +26,13 @@ dbac = TinyDBAC()
 
 
 @app.route("/", methods=["GET", "POST"])
-def index():
+def index() -> Response:
     session["bucket"] = S3_BUCKET
     return redirect(url_for("files"))
 
 
 @app.route("/files", methods=["GET", "POST"])
-def files():
+def files() -> str:
     my_bucket = get_bucket()
 
     if request.method == "GET":
@@ -49,7 +49,7 @@ def files():
 
 
 @app.route("/upload", methods=["POST"])
-def upload():
+def upload() -> Response:
     file = request.files["file"]
     export_path = request.form["export-path"]
     expiration = request.form["expiration"]
@@ -82,7 +82,7 @@ def upload():
                     "/usr/bin/zip",
                     "-r",
                     "-P",
-                    f"\'{password}\'",
+                    f"'{password}'",
                     f"../{dirpath_dst}/pass_{os.path.splitext(file.filename)[0]}.zip",
                     "./*",
                 ]
@@ -110,7 +110,7 @@ def upload():
 
 
 @app.route("/delete", methods=["POST"])
-def delete():
+def delete() -> Response:
     key = request.form["key"]
     export_path = request.form["export-path"]
 
@@ -133,7 +133,7 @@ def delete():
 
 
 @app.route("/download", methods=["POST"])
-def download():
+def download() -> Response:
     key = request.form["key"]
 
     my_bucket = get_bucket()
@@ -149,7 +149,7 @@ def download():
 
 
 @app.route("/get_public_url", methods=["POST"])
-def get_public_url():
+def get_public_url() -> str:
     key = request.form["key"]
     s3_client = get_s3_client()
     bucket_location = s3_client.get_bucket_location(Bucket=S3_BUCKET)
@@ -158,7 +158,7 @@ def get_public_url():
 
 
 @app.route("/mkdir", methods=["POST"])
-def mkdir():
+def mkdir() -> Response:
     new_dir_name = request.form["new-dir-name"]
     export_path = request.form["export-path"]
 
@@ -187,4 +187,3 @@ def mkdir():
 
 if __name__ == "__main__":
     app.run()
-    # 空ディレクトリの削除
