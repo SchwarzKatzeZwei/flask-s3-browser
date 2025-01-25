@@ -13,6 +13,8 @@ Simple operation of AWS S3 from a web browser
 - Display password when uploading archives from (this tool)
 - Expiration by Lifecycle
 - Select Encoding (UTF-8, Shift_JIS(CP932))
+- Compression support for multi-byte filenames
+- Support for more encrypted uploads for zip files
 
 ## Setup
 
@@ -34,7 +36,8 @@ Create a new file `.env` using the contents of `.env-sample.` If you are not usi
 ## Usage
 
 ```sh
-flask run
+source .env
+gunicorn --workers=4 --bind=${FLASK_RUN_HOST}:${FLASK_RUN_PORT}--access-logfile=/dev/null --error-logfile=- app:app
 ```
 
 ## Clone origin

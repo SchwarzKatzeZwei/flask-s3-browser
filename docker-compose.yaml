@@ -1,13 +1,24 @@
-version: '3.8'
-
 services:
   flask-s3-browser:
+    container_name: flask-s3
+    image: comjo/flask-s3:2.0.0
     build:
       context: .
-      dockerfile: Dockerfile 
+      dockerfile: Dockerfile
     ports:
       - ${FLASK_RUN_PORT}:${FLASK_RUN_PORT}
     restart: always
     volumes:
       - ./:/app
-    command: flask run
+    environment:
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_KEY=${S3_KEY}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - PASSWORD_LENGTH=${PASSWORD_LENGTH}
+    command: >
+      gunicorn
+      --workers=4
+      --bind=${FLASK_RUN_HOST}:${FLASK_RUN_PORT}
+      --access-logfile=/dev/null
+      --error-logfile=-
+      app:app

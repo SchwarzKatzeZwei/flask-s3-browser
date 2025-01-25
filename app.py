@@ -89,12 +89,12 @@ def upload() -> Response:
                     "/usr/bin/zip",
                     "-r",
                     "-P",
-                    f"'{password}'",
-                    f"../{dirpath_dst}/pass_{os.path.splitext(file.filename)[0]}.zip",
-                    "./*",
+                    password,
+                    os.path.join("..", dirpath_dst, f"pass_{os.path.splitext(file.filename)[0]}.zip"),
+                    ".",
                 ]
-                command_str = " ".join(command)
-                subprocess.run(command_str, cwd=f"{dirpath_src}", shell=True)
+
+                subprocess.run(command, cwd=dirpath_src, shell=False, check=True, capture_output=True)
 
                 # S3にアップロード
                 my_bucket.upload_file(

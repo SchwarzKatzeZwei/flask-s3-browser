@@ -1,5 +1,4 @@
-FROM python:3.9
-
+FROM python:3.11-slim
 ADD ./requirements.txt /tmp
 RUN apt-get update && apt-get install -y \
     zip \
@@ -9,4 +8,3 @@ RUN apt-get update && apt-get install -y \
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 WORKDIR /app
-# CMD [ "flask", "run" ]
