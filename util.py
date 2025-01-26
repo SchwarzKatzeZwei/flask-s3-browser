@@ -21,29 +21,34 @@ def dir_file_filter(summaries: boto3.resources.collection.ResourceCollection, ke
         - ファイルの場合: S3オブジェクトサマリー
     """
     prefix_len = len(key)
-    ret_list = []
+    dir_list = []
+    file_list = []
     in_directory = []
     for summary in summaries:
-        file_path = summary.key[prefix_len:]
+        file_path = summary.key[prefix_len:] if key and summary.key.startswith(key) else summary.key
         splist = file_path.split("/")
-        if len(splist) > 1:
-            # directory
-            if key + splist[0] not in in_directory:
-                ret_list.append({"key": key + splist[0] + "/"})
-                in_directory.append(key + splist[0])
-        else:
-            if splist[0] == "":
-                continue
-            # file
-            ret_list.append(summary)
 
-    return ret_list
+        if len(splist) > 1 and splist[0]:
+            # ディレクトリエントリの場合
+            dir_name = splist[0]
+            dir_path = key + dir_name if key else dir_name
+            if dir_path not in in_directory:
+                dir_list.append({"key": dir_path + "/"})
+                in_directory.append(dir_path)
+        elif splist[0]:
+            # else:
+            # ファイルエントリの場合（空でない場合のみ）
+            file_list.append(summary)
+
+    # ディレクトリを先に、ファイルを後に配置
+    return dir_list + file_list
 
 
 def pass_gen(size: int = 12) -> str:
     """ランダムなパスワードを生成する
 
     英大文字、英小文字、数字、一部の特殊文字（%&$#()）を含むパスワードを生成します。
+    各文字種が少なくとも1文字は含まれることが保証されています。
 
     Args:
         size (int, optional): 生成するパスワードの長さ. Defaults to 12.
@@ -55,11 +60,20 @@ def pass_gen(size: int = 12) -> str:
         >>> pass_gen(8)
         'Kj2$mP9n'
     """
-    chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
-    # 記号を含める場合
-    chars += "%&$#()"
+    # 各文字種から1文字ずつ選択
+    upper = secrets.choice(string.ascii_uppercase)
+    lower = secrets.choice(string.ascii_lowercase)
+    digit = secrets.choice(string.digits)
+    symbol = secrets.choice("%&$#()")
 
-    return "".join(secrets.choice(chars) for x in range(size))
+    # 残りの文字数をランダムに生成
+    chars = string.ascii_uppercase + string.ascii_lowercase + string.digits + "%&$#()"
+    remaining = "".join(secrets.choice(chars) for _ in range(size - 4))
+
+    # すべての文字を結合してシャッフル
+    password = list(upper + lower + digit + symbol + remaining)
+    secrets.SystemRandom().shuffle(password)
+    return "".join(password)
 
 
 def check_already_insert_db(key: str) -> bool:

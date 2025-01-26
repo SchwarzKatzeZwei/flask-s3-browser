@@ -141,3 +141,7 @@ cython_debug/
 .DS_Store
 db.json
 .vscode/
+archive/
+cov.xml
+pytest*
+output.json

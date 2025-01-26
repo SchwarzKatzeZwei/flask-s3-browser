@@ -8,11 +8,19 @@ readme = "README.md"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.13"
+python = ">=3.9,<3.13"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.9.3"
 mypy = "^1.14.1"
+pytest = "^8.3.4"
+pytest-mock = "^3.14.0"
+pytest-cov = "^6.0.0"
+pytest-html = "^4.1.1"
+pytest-html-reporter = "^0.2.9"
+pytest-playwright = "^0.6.2"
+allure-pytest = "^2.13.5"
+py = "^1.11.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -79,3 +87,4 @@ filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.coverage.run]
 source = ["."]
+omit = ["tests/**"]
