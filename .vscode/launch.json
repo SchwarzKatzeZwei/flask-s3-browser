@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flask Debug (Gunicorn)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "gunicorn",
+      "args": [
+        "-c",
+        "config.py",
+        "-w",
+        "1",
+        "app:app"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "stopOnEntry": false,
+      "python": "${command:python.interpreterPath}"
+    }
+  ]
+}

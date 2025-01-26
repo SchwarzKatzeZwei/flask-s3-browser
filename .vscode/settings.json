@@ -1,0 +1,26 @@
+{
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "[yaml]": {
+    "editor.tabSize": 2
+  },
+  "mypy.dmypyExecutable": "${workspaceFolder}/.venv/bin/dmypy",
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  // ファイル保存時にテスト対象を自動的に探索
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
+  "coverage-gutters.coverageFileNames": ["cov.xml"],
+  // エディタ上のカバレッジ表示設定
+  // ガター(ブレークポイント等が表示される場所)でのカバレッジ表示有無(default: true)
+  "coverage-gutters.showGutterCoverage": false,
+  // エディタ行でのカバレッジ表示有無(default: false)
+  "coverage-gutters.showLineCoverage": true,
+  // ルーラーでのカバレッジ表示有無(default: false)
+  "coverage-gutters.showRulerCoverage": false
+}

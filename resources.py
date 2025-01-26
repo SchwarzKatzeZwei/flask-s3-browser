@@ -2,7 +2,7 @@ import boto3
 from boto3.resources.base import ServiceResource
 from botocore.client import BaseClient
 
-from config import S3_BUCKET, S3_KEY, S3_SECRET
+from config import S3_ACCESS_KEY, S3_BUCKET_NAME, S3_SECRET_KEY
 
 
 def _get_s3_resource() -> ServiceResource:
@@ -14,11 +14,11 @@ def _get_s3_resource() -> ServiceResource:
         ServiceResource: S3リソースクライアント
 
     Note:
-        環境変数またはconfigからS3_KEYとS3_SECRETが設定されている場合は、
+        環境変数またはconfigからS3_ACCESS_KEYとS3_SECRET_KEYが設定されている場合は、
         それらの認証情報を使用してクライアントを作成します。
     """
-    if S3_KEY and S3_SECRET:
-        return boto3.resource("s3", aws_access_key_id=S3_KEY, aws_secret_access_key=S3_SECRET)
+    if S3_ACCESS_KEY and S3_SECRET_KEY:
+        return boto3.resource("s3", aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
     else:
         return boto3.resource("s3")
 
@@ -27,7 +27,7 @@ def get_bucket() -> boto3.resources.base.ServiceResource:
     """S3バケットリソースを取得します
 
     セッションにバケット名が保存されている場合はそれを使用し、
-    ない場合はデフォルトのS3_BUCKETを使用します。
+    ない場合はデフォルトのS3_BUCKET_NAMEを使用します。
 
     Returns:
         boto3.resources.base.ServiceResource: S3バケットリソース
@@ -38,7 +38,7 @@ def get_bucket() -> boto3.resources.base.ServiceResource:
         2. 設定ファイルのS3_BUCKET
     """
     s3_resource = _get_s3_resource()
-    bucket = S3_BUCKET
+    bucket = S3_BUCKET_NAME
 
     return s3_resource.Bucket(bucket)
 
@@ -55,7 +55,7 @@ def get_s3_client() -> BaseClient:
         環境変数またはconfigからS3_KEYとS3_SECRETが設定されている場合は、
         それらの認証情報を使用してクライアントを作成します。
     """
-    if S3_KEY and S3_SECRET:
-        return boto3.client("s3", aws_access_key_id=S3_KEY, aws_secret_access_key=S3_SECRET)
+    if S3_ACCESS_KEY and S3_SECRET_KEY:
+        return boto3.client("s3", aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
     else:
         return boto3.client("s3")

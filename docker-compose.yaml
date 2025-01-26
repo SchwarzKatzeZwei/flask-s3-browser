@@ -10,15 +10,4 @@ services:
     restart: always
     volumes:
       - ./:/app
-    environment:
-      - S3_BUCKET=${S3_BUCKET}
-      - S3_KEY=${S3_KEY}
-      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
-      - PASSWORD_LENGTH=${PASSWORD_LENGTH}
-    command: >
-      gunicorn
-      --workers=4
-      --bind=${FLASK_RUN_HOST}:${FLASK_RUN_PORT}
-      --access-logfile=/dev/null
-      --error-logfile=-
-      app:app
+    command: gunicorn -c config.py app:app

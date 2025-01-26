@@ -4,18 +4,15 @@ import subprocess
 import tempfile
 import urllib.parse
 
-from dotenv import load_dotenv
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_bootstrap import Bootstrap
 from werkzeug.wrappers import Response
 
-from config import PASSWORD_LENGTH, S3_BUCKET
+from config import PASSWORD_LENGTH, S3_BUCKET_NAME
 from db_access import TinyDBAC
 from filters import datetimeformat, file_type, get_archive_pass, get_expires_async, path_parent
 from resources import get_bucket, get_s3_client
 from util import check_already_insert_db, dir_file_filter, make_tag, pass_gen
-
-load_dotenv(verbose=True)
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -158,8 +155,8 @@ def download() -> Response:
 def get_public_url() -> str:
     key = request.form["key"]
     s3_client = get_s3_client()
-    bucket_location = s3_client.get_bucket_location(Bucket=S3_BUCKET)
-    url = f"https://s3-{bucket_location['LocationConstraint']}.amazonaws.com/{S3_BUCKET}/{key}"
+    bucket_location = s3_client.get_bucket_location(Bucket=S3_BUCKET_NAME)
+    url = f"https://s3-{bucket_location['LocationConstraint']}.amazonaws.com/{S3_BUCKET_NAME}/{key}"
     return url
 
 
