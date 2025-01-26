@@ -1,0 +1,10 @@
+[tool.pytest.ini_options]
+addopts = "-v --cov-config=tests/UT/unit.toml --cov . --cov-branch --cov-report=term --cov-report xml:cov.xml --html=pytest_report.html --self-contained-html --junitxml=./pytest_report.xml --css=tests/UT/myreport.css --color=yes"
+pythonpath = ["."]
+testpaths = ["tests/"]
+norecursedirs = ["tests/IT", "*migrations*"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["."]
+omit = ["tests/**"]

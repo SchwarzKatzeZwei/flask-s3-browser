@@ -36,8 +36,19 @@ Create a new file `.env` using the contents of `.env-sample.` If you are not usi
 ## Usage
 
 ```sh
-source .env
-gunicorn --workers=4 --bind=${FLASK_RUN_HOST}:${FLASK_RUN_PORT}--access-logfile=/dev/null --error-logfile=- app:app
+# local
+gunicorn -c config.py --workers=4 app:app
+# docker
+docker compose up -d
+```
+
+## Test
+
+```sh
+# Unit test
+pytest --config-file=tests/UT/unit.toml
+# Integration test
+pytest --config-file=tests/IT/integration.toml
 ```
 
 ## Clone origin

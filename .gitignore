@@ -145,3 +145,11 @@ archive/
 cov.xml
 pytest*
 output.json
+
+# common
+.DS_Store
+
+# PlayWright
+test-results
+allure-results
+allure-report

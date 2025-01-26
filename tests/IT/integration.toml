@@ -1,0 +1,10 @@
+[tool.pytest.ini_options]
+addopts = "-vvv --color=yes --tracing=on --video=on --alluredir allure-results --clean-alluredir"
+pythonpath = ["."]
+testpaths = ["tests/IT"]
+norecursedirs = ["tests/UT", "*migrations*"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["."]
+omit = ["tests/**"]

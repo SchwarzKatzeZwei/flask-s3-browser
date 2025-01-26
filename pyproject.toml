@@ -78,13 +78,3 @@ warn_unused_ignores = true
 # 冗長なキャストに警告
 warn_redundant_casts = true
 check_untyped_defs = true
-
-[tool.pytest.ini_options]
-addopts = "-v --cov-config=pyproject.toml --cov . --cov-branch --cov-report=term --cov-report xml:cov.xml --html=pytest_report.html --self-contained-html --junitxml=./pytest_report.xml --css=tests/myreport.css --color=yes"
-pythonpath = ["."]
-testpaths = ["tests"]
-filterwarnings = ["ignore::DeprecationWarning"]
-
-[tool.coverage.run]
-source = ["."]
-omit = ["tests/**"]
